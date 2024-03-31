@@ -23,6 +23,17 @@ O diretório `lista-local-backend` contém todos os arquivos relacionados ao bac
 
 - **routes**: Contém os arquivos de roteamento que definem os endpoints da API.
 
+### End-points
+
+- Para cadastro utiliza-se o seguinte endpoint
+https://lista-local-backend.onrender.com/api/usuarios
+
+- Para login utiliza-se o seguinte endpoint
+https://lista-local-backend.onrender.com/usuarios/login
+
+- Para buscar todos os usuarios utiliza-se o seguinte endpoint
+https://lista-local-backend.onrender.com/usuarios 
+
 ## Tecnologias Utilizadas
 
   
