@@ -29,10 +29,10 @@ O diretório `lista-local-backend` contém todos os arquivos relacionados ao bac
 https://lista-local-backend.onrender.com/api/usuarios
 
 - Para login utiliza-se o seguinte endpoint
-https://lista-local-backend.onrender.com/usuarios/login
+https://lista-local-backend.onrender.com/api/usuarios/login
 
 - Para buscar todos os usuarios utiliza-se o seguinte endpoint
-https://lista-local-backend.onrender.com/usuarios 
+https://lista-local-backend.onrender.com/api/usuarios 
 
 ## Tecnologias Utilizadas
 
