@@ -56,6 +56,12 @@ const Usuario = require("./model/user");
 Usuario();
 
 // Rotas CRUD
+// Função para criar o hash da senha
+async function hashSenha(senha) {
+  const saltRounds = 10;
+  const hashedSenha = await bcrypt.hash(senha, saltRounds);
+  return hashedSenha;
+}
 
 // Rota para criar um novo usuário
 app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
@@ -68,12 +74,23 @@ app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
     username,
     email,
     password,
+    confirmPassword,
     companyName,
     cnpj,
     whatsapp,
     address,
     instagram,
   } = req.body;
+
+  // Verificar se a senha e a confirmação de senha coincidem
+  if (password !== confirmPassword) {
+    return res
+      .status(400)
+      .json({ error: "As senhas password e confirmPassword não coincidem." });
+  }
+
+  // Criar hash da senha
+  const hashedPassword = await hashSenha(password);
 
   try {
     // Verificar se o usuário já existe
@@ -82,13 +99,14 @@ app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
       return res.status(400).json({ message: "Este email já está cadastrado" });
     }
 
-    // Crie um hash da senha
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // // Crie um hash da senha
+    // const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new Usuario({
       username,
       email,
       password: hashedPassword,
+      confirmPassword,
       companyName,
       cnpj,
       whatsapp,
