@@ -24,7 +24,7 @@
                 });
 
                 if (response.ok) {
-                    window.location.href = '/usuarios'; // Redireciona para a rota /api
+                    window.location.href = '/api/usuarios'; // Redireciona para a rota /api
                 } else if (response.status === 401) {
                     alert('Credenciais inválidas');
                 } else {
