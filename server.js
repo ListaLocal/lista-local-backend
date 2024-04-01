@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 3000;
 
 // conexão com o banco
 
-const db = require("./db/db");
+const db = require("./DB/db");
 
 db();
 
