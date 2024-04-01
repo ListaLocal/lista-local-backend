@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <input type="password" id="password" placeholder="Digite sua senha">
+    <button onclick="login()">Entrar</button>
+
+    <script>
+        async function login() {
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('http://192.168.1.70:3000/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password })
+                });
+
+                if (response.ok) {
+                    window.location.href = '/usuarios'; // Redireciona para a rota /api
+                } else if (response.status === 401) {
+                    alert('Credenciais inválidas');
+                } else {
+                    throw new Error('Erro ao tentar fazer login');
+                }
+            } catch (error) {
+                console.error('Erro ao tentar fazer login', error);
+                alert('Erro ao tentar fazer login');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -24,6 +24,26 @@ const db = require("./DB/db");
 
 db();
 
+const API_PASSWORD = process.env.API_PASSWORD
+// Rota de autenticação na página inicial
+// Rota para a página inicial
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
+// Rota para autenticar a senha
+app.post('/', (req, res) => {
+  const { password } = req.body;
+
+  if (password === process.env.API_PASSWORD) {
+      // Senha correta, conceda acesso à API
+      res.status(200).send('Acesso concedido à API');
+  } else {
+      // Senha incorreta, negue o acesso
+      res.status(401).send('Credenciais inválidas');
+  }
+});
+
 // Middleware de validação para o registro de usuários
 const validateUserRegistration = [
   check("email").isEmail({}),
