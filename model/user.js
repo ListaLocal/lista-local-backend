@@ -8,6 +8,6 @@ const UsuarioSchema = new mongoose.Schema({
   address: String,
   instagram: String,
 });
-const User = mongoose.model("User", UsuarioSchema);
+const Usuario = mongoose.model("Usuario", UsuarioSchema);
 
-module.exports = User;
+module.exports = Usuario;

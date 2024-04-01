@@ -31,14 +31,14 @@ const validateUserRegistration = [
 ];
 
 // Importando o modelo de usuário
-const User = require("./model/user");
+const Usuario = require("./model/user");
 
-User();
+Usuario();
 
 // Rotas CRUD
 
 // Rota para criar um novo usuário
-app.post("/api/users", validateUserRegistration, async (req, res) => {
+app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -57,7 +57,7 @@ app.post("/api/users", validateUserRegistration, async (req, res) => {
 
   try {
     // Verificar se o usuário já existe
-    const existingUser = await User.findOne({ email });
+    const existingUser = await Usuario.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Este email já está cadastrado" });
     }
@@ -65,7 +65,7 @@ app.post("/api/users", validateUserRegistration, async (req, res) => {
     // Crie um hash da senha
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
+    const newUser = new Usuario({
       username,
       email,
       password: hashedPassword,
@@ -84,29 +84,29 @@ app.post("/api/users", validateUserRegistration, async (req, res) => {
 });
 
 // Read
-app.get("/api/users", (req, res) => {
-  User.find()
+app.get("/api/usuarios", (req, res) => {
+  Usuario.find()
     .then((usuarios) => res.json(usuarios))
     .catch((err) => res.status(400).json({ error: err.message }));
 });
 
 // Read one user
-app.get("/api/users/:id", (req, res) => {
-  User.findOne()
+app.get("/api/usuarios/:id", (req, res) => {
+  Usuario.findOne()
     .then((usuarios) => res.json(usuarios))
     .catch((err) => res.status(400).json({ error: err.message }));
 });
 
 // Update
-app.put("/api/users/:id", (req, res) => {
-  User.findByIdAndUpdate(req.params.id, req.body, { new: true })
+app.put("/api/usuarios/:id", (req, res) => {
+  Usuario.findByIdAndUpdate(req.params.id, req.body, { new: true })
     .then((usuario) => res.json(usuario))
     .catch((err) => res.status(400).json({ error: err.message }));
 });
 
 // Delete
-app.delete("/api/users/:id", (req, res) => {
-  User.findByIdAndDelete(req.params.id)
+app.delete("/api/usuarios/:id", (req, res) => {
+  Usuario.findByIdAndDelete(req.params.id)
     .then(() => res.json({ message: "usuario deletado com sucesso" }))
     .catch((err) => res.status(400).json({ error: err.message }));
 });
@@ -119,12 +119,12 @@ const validateUserLogin = [
 ];
 
 // Rota de login
-app.post("/api/users/login", validateUserLogin, async (req, res) => {
+app.post("/api/usuarios/login", validateUserLogin, async (req, res) => {
   const { email, password } = req.body;
 
   try {
     // Encontre o usuário no banco de dados
-    const user = await User.findOne({ email });
+    const user = await Usuario.findOne({ email });
 
     if (!user) {
       return res.status(401).send("Credenciais inválidas");
