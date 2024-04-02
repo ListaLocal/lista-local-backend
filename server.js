@@ -124,7 +124,7 @@ app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
     }
 
 
-    const newUser = new Usuario({
+    const newUser = new Usuario({      
       username,
       cnpj,
       fantasyName,
