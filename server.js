@@ -31,23 +31,23 @@ app.use((req, res, next) => {
     next();
 });
 
-const API_PASSWORD = process.env.API_PASSWORD
+const API_PASSWORD = process.env.API_PASSWORD;
 // Rota de autenticação na página inicial
 // Rota para a página inicial
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html");
 });
 
 // Rota para autenticar a senha
-app.post('/', (req, res) => {
+app.post("/", (req, res) => {
   const { password } = req.body;
 
   if (password === process.env.API_PASSWORD) {
-      // Senha correta, conceda acesso à API
-      res.status(200).send('Acesso concedido à API');
+    // Senha correta, conceda acesso à API
+    res.status(200).send("Acesso concedido à API");
   } else {
-      // Senha incorreta, negue o acesso
-      res.status(401).send('Credenciais inválidas');
+    // Senha incorreta, negue o acesso
+    res.status(401).send("Credenciais inválidas");
   }
 });
 
@@ -63,6 +63,12 @@ const Usuario = require("./model/user");
 Usuario();
 
 // Rotas CRUD
+// Função para criar o hash da senha
+async function hashSenha(senha) {
+  const saltRounds = 10;
+  const hashedSenha = await bcrypt.hash(senha, saltRounds);
+  return hashedSenha;
+}
 
 // Rota para criar um novo usuário
 app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
@@ -71,16 +77,51 @@ app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const {
-    username,
-    email,
-    password,
-    companyName,
-    cnpj,
-    whatsapp,
-    address,
-    instagram,
-  } = req.body;
+  const { username, cnpj, email, fantasyName, password, confirmPassword } =
+    req.body;
+
+  // Verificar se algum dos campos está vazio
+  if (
+    !username ||
+    !cnpj ||
+    !email ||
+    !fantasyName ||
+    !password ||
+    !confirmPassword
+  ) {
+    return res
+      .status(400)
+      .json({ error: "Por favor, preencha todos os campos obrigatórios." });
+  }
+
+  // Verificar se o username tem pelo menos 10 caracteres
+  if (username.length < 10) {
+    return res
+      .status(400)
+      .json({ error: "O username deve ter pelo menos 10 caracteres." });
+  }
+
+  // Verificar se o cnpj tem 14 caracteres
+  if (cnpj.length < 14) {
+    return res.status(400).json({ error: "O cnpj deve ter 14 caracteres." });
+  }
+
+  // Verificar se o fantasyName tem pelo menos 5 caracteres
+  if (fantasyName.length < 5) {
+    return res
+      .status(400)
+      .json({ error: "O fantasyName deve ter pelo menos 5 caracteres." });
+  }
+
+  // Verificar se a senha e a confirmação de senha coincidem
+  if (password !== confirmPassword) {
+    return res
+      .status(400)
+      .json({ error: "As senhas password e confirmPassword não coincidem." });
+  }
+
+  // Criar hash da senha
+  const hashedPassword = await hashSenha(password);
 
   try {
     // Verificar se o usuário já existe
@@ -89,18 +130,14 @@ app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
       return res.status(400).json({ message: "Este email já está cadastrado" });
     }
 
-    // Crie um hash da senha
-    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new Usuario({
+    const newUser = new Usuario({      
       username,
+      cnpj,
+      fantasyName,
       email,
       password: hashedPassword,
-      companyName,
-      cnpj,
-      whatsapp,
-      address,
-      instagram,
+      confirmPassword,
     });
     await newUser.save();
     res.status(201).json({ message: "Usuário cadastrado com sucesso" });
@@ -157,11 +194,9 @@ app.post("/api/usuarios/login", validateUserLogin, async (req, res) => {
       return res.status(401).send("Credenciais inválidas");
     }
 
-    
-
     // Verifique se a senha corresponde ao hash no banco de dados
     const passwordMatch = await bcrypt.compare(password, user.password);
-    
+
     if (!passwordMatch) {
       return res.status(401).send("Credenciais inválidas");
     }

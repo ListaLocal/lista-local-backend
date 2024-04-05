@@ -1,13 +1,12 @@
 const mongoose = require("mongoose")
 const UsuarioSchema = new mongoose.Schema({
   username: String,
+  cnpj: String,
+  fantasyName: String,
   email: { type: String, unique: true },
   password: String,
-  companyName: String,
-  cnpj: String,
-  whatsapp: String,
-  address: String,
-  instagram: String,
+  confirmPassword: String,
+  
 });
 const Usuario = mongoose.model("Usuario", UsuarioSchema);
 
