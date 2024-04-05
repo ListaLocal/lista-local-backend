@@ -24,6 +24,13 @@ const db = require("./DB/db");
 
 db();
 
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});
+
 const API_PASSWORD = process.env.API_PASSWORD
 // Rota de autenticação na página inicial
 // Rota para a página inicial
