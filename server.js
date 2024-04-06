@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
+const multer = require('multer');
+const path = require('path');
 const { check, validationResult } = require("express-validator");
 
 const app = express();
@@ -61,6 +63,11 @@ const validateUserRegistration = [
 const Usuario = require("./model/user");
 
 Usuario();
+
+//  importando o modelo de usuario current
+const Current = require('./model/current');
+
+Current();
 
 // Rotas CRUD
 // Função para criar o hash da senha
@@ -208,5 +215,56 @@ app.post("/api/usuarios/login", validateUserLogin, async (req, res) => {
     return res.status(500).send("Erro interno do servidor");
   }
 });
+
+//  page currentUpdateCompany
+
+// Configuração do Multer para salvar as imagens no diretório "uploads"
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage });
+
+
+// Rota para cadastro de usuário
+app.post('/api/usuarios/current', upload.single('imagem'), async (req, res) => {
+  try {
+    // Extrair dados do corpo da requisição
+    const { whatsapp, newWhatsapp, instagram, cep, logradouro, numero, bairro, complemento } = req.body;
+
+    // Verificar se algum campo obrigatório está vazio
+    if (!whatsapp || !newWhatsapp || !instagram || !cep || !logradouro || !numero || !bairro|| !complemento) {
+      return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+    }
+
+    // Verificar se a imagem foi enviada
+    const imagem = req.file ? req.file.path : null;
+
+    const newCurrent = new Current({
+      whatsapp,
+      newWhatsapp,
+      instagram,
+      cep,
+      logradouro,
+      numero,
+      bairro,
+      complemento,
+      imagem
+    });
+
+    await newCurrent.save();
+
+    res.status(201).json({ message: 'Formulario atualizado', user: newCurrent });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
 
 app.listen(PORT, () => console.log(`Api rodando na porta ${PORT}`));
