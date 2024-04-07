@@ -232,7 +232,7 @@ const upload = multer({ storage: storage });
 
 
 // Rota para cadastro de usuário
-app.post('/api/usuarios/current', upload.single('imagem'), async (req, res) => {
+app.post('/api/usuarios/login/current', upload.single('imagem'), async (req, res) => {
   try {
     // Extrair dados do corpo da requisição
     const { whatsapp, newWhatsapp, instagram, cep, logradouro, numero, bairro, complemento } = req.body;
@@ -265,6 +265,35 @@ app.post('/api/usuarios/current', upload.single('imagem'), async (req, res) => {
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 });
+
+// Read one user
+app.get("/api/usuarios/login/current/:id", (req, res) => {
+  Current.findOne()
+    .then((usuarios) => res.json(usuarios))
+    .catch((err) => res.status(400).json({ error: err.message }));
+});
+
+// Read
+app.get("/api/usuarios/login/current", (req, res) => {
+  Current.find()
+    .then((currents) => res.json(currents))
+    .catch((err) => res.status(400).json({ error: err.message }));
+});
+
+// Update
+app.put("/api/usuarios/login/current/:id", (req, res) => {
+  Current.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    .then((current) => res.json(current))
+    .catch((err) => res.status(400).json({ error: err.message }));
+});
+// Delete
+app.delete("/api/usuarios/login/current/:id", (req, res) => {
+  Current.findByIdAndDelete(req.params.id)
+    .then(() => res.json({ message: "usuario deletado com sucesso" }))
+    .catch((err) => res.status(400).json({ error: err.message }));
+});
+
+
 
 
 app.listen(PORT, () => console.log(`Api rodando na porta ${PORT}`));
