@@ -7,9 +7,10 @@ require("dotenv").config();
 const multer = require('multer');
 const path = require('path');
 const { check, validationResult } = require("express-validator");
+const jwt = require('jsonwebtoken');
 
 const app = express();
-
+const secretKey = 'estado'
 // Middleware para analisar corpos de solicitação
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -153,7 +154,32 @@ app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
     res.status(500).json({ message: "Erro interno do servidor" });
   }
 });
+app.post('/api/usuarios/login', async (req, res) => {
+  const { email, password } = req.body;
 
+  // Busque o usuário no banco de dados
+  const user = await Usuario.findOne({ email });
+
+  // Se o usuário não for encontrado, retorne um erro
+  if (!user) {
+    return res.status(401).send('Usuário não encontrado');
+  }
+
+  // Compare a senha fornecida com o hash armazenado
+  const passwordMatch = await bcrypt.compare(password, user.password);
+ 
+  /** Se a senha estiver incorreta, retorne um erro */
+  if (!passwordMatch) {
+    return res.status(401).send('Senha incorreta');
+  }
+
+  // Gere um token JWT contendo o ID do usuário
+  const payload = { userId: user._id };
+  const token = jwt.sign(payload, secretKey);
+
+  // Retorne o token JWT para o cliente
+  res.status(200).send({ token });
+});
 // Read
 app.get("/api/usuarios", (req, res) => {
   Usuario.find()
