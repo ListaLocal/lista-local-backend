@@ -63,7 +63,7 @@ app.post('/registerLoginBack', async (req, res) => {
 });
 
 // Rota para autenticar o login na api
-app.post('/registerLoginBack/login', async (req, res) => {
+app.post('/', async (req, res) => {
   try {
     const { password } = req.body;
 
