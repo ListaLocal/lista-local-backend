@@ -33,25 +33,75 @@ app.use((req, res, next) => {
     next();
 });
 
-const API_PASSWORD = process.env.API_PASSWORD;
-// Rota de autenticação na página inicial
-// Rota para a página inicial
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
+//  importando o modelo de login do back
+const Login = require('./model/LoginBack');
 
-// Rota para autenticar a senha
-app.post("/", (req, res) => {
-  const { password } = req.body;
+Login();
 
-  if (password === process.env.API_PASSWORD) {
-    // Senha correta, conceda acesso à API
-    res.status(200).send("Acesso concedido à API");
-  } else {
-    // Senha incorreta, negue o acesso
-    res.status(401).send("Credenciais inválidas");
+// 
+// Rota para cadastrar um novo password para acessar a api
+app.post('/registerLoginBack', async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    // Verifica se o campo está preenchido
+    if (!password) {
+      return res.status(400).json({ message: 'Password é obrigatório.' });
+    }
+
+    // Criptografa a senha
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Salva o usuário no banco de dados
+    await Login.create({ password: hashedPassword });
+
+    res.status(201).json({ message: 'Password registrado com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao registrar password:', error);
+    res.status(500).json({ message: 'Erro interno do servidor.' });
   }
 });
+
+// Rota para autenticar o login na api
+app.post('/registerLoginBack/login', async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    // Procura pelo password no banco de dados
+    const login = await Login.findOne();
+    if (!login) {
+      return res.status(401).json({ message: 'Password não encontrado.' });
+    }
+
+    // Verifica se a senha é válida
+    const isValidPassword = await bcrypt.compare(password, login.password);
+    if (!isValidPassword) {
+      return res.status(401).json({ message: 'Senha inválida.' });
+    }
+
+    res.status(200).json({ message: 'Login bem sucedido.' });
+    // res.sendFile(__dirname + "/index.html");
+  } catch (error) {
+    console.error('Erro ao autenticar password:', error);
+    res.status(500).json({ message: 'Erro interno do servidor.' });
+  }
+});
+
+// Rota para ler os password salvos
+app.get("/registerLoginBack", (req, res) => {
+  Login.find()
+    .then((logins) => res.json(logins))
+    .catch((err) => res.status(400).json({ error: err.message }));
+});
+
+// Rota para Deletar o password
+app.delete("/registerLoginBack/:id", (req, res) => {
+  Login.findByIdAndDelete(req.params.id)
+    .then(() => res.json({ message: "password deletado com sucesso" }))
+    .catch((err) => res.status(400).json({ error: err.message }));
+});
+// final da parte dologin da api
+
 
 // Middleware de validação para o registro de usuários
 const validateUserRegistration = [
