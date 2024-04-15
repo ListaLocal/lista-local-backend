@@ -61,9 +61,12 @@ app.post('/registerLoginBack', async (req, res) => {
     res.status(500).json({ message: 'Erro interno do servidor.' });
   }
 });
-
+// Define a rota raiz para servir o arquivo index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 // Rota para autenticar o login na api
-app.post('/', async (req, res) => {
+app.post('/registerLoginBack/login', async (req, res) => {
   try {
     const { password } = req.body;
 
