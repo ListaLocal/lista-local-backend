@@ -20,7 +20,7 @@
       const password = document.getElementById('password').value;
 
       try {
-        const response = await fetch('http://192.168.0.110:3000/loginApi', {
+        const response = await fetch('https://lista-local-backend.onrender.com/loginApi', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
