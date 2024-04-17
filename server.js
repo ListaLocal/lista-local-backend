@@ -39,54 +39,48 @@ const Login = require('./model/LoginBack');
 Login();
 
 // 
-// Rota para cadastrar um novo password para acessar a api
-app.post('/registerLoginBack', async (req, res) => {
+// Servindo o arquivo index.html na rota raiz
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
+// Rota para cadastrar password com hash
+app.post('/api/cadastro', async (req, res) => {
+  const { password } = req.body;
+
+  // Verifica se o campo de password está vazio
+  if (!password) {
+    return res.status(400).send('O campo de senha não pode estar vazio.');
+  }
+
+  // Verifica se o password se tem menos de 5 caracteres
+  if (password.length < 5) {
+    return res.status(400).send('A senha deve ter pelo menos 5 caracteres.');
+  }
+
   try {
-    const { password } = req.body;
-
-    // Verifica se o campo está preenchido
-    if (!password) {
-      return res.status(400).json({ message: 'Password é obrigatório.' });
-    }
-
-    // Criptografa a senha
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Salva o usuário no banco de dados
-    await Login.create({ password: hashedPassword });
-
-    res.status(201).json({ message: 'Password registrado com sucesso.' });
+    const login = new Login({ password: hashedPassword });
+    await login.save();
+    res.status(201).send('Senha cadastrada com sucesso!');
   } catch (error) {
-    console.error('Erro ao registrar password:', error);
-    res.status(500).json({ message: 'Erro interno do servidor.' });
+    res.status(500).send('Erro ao cadastrar senha');
   }
 });
-// Define a rota raiz para servir o arquivo index.html
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-// Rota para autenticar o login na api
-app.post('/registerLoginBack/login', async (req, res) => {
+
+// Rota para verificar e redirecionar após o login
+app.post('/loginApi', async (req, res) => {
+  const { password } = req.body;
   try {
-    const { password } = req.body;
-
-    // Procura pelo password no banco de dados
     const login = await Login.findOne();
-    if (!login) {
-      return res.status(401).json({ message: 'Password não encontrado.' });
+    const match = await bcrypt.compare(password, login.password);
+    if (match) {
+      res.json({ redirectUrl: '/api/usuarios' }); // Substitua com a rota para onde você deseja redirecionar
+    } else {
+      res.status(401).json({ error: 'Credenciais inválidas' });
     }
-
-    // Verifica se a senha é válida
-    const isValidPassword = await bcrypt.compare(password, login.password);
-    if (!isValidPassword) {
-      return res.status(401).json({ message: 'Senha inválida.' });
-    }
-
-    res.status(200).json({ message: 'Login bem sucedido.' });
-    // res.sendFile(__dirname + "/index.html");
   } catch (error) {
-    console.error('Erro ao autenticar password:', error);
-    res.status(500).json({ message: 'Erro interno do servidor.' });
+    res.status(500).json({ error: 'Erro ao fazer login' });
   }
 });
 
