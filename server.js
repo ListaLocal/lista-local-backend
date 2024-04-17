@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
 });
 
 // Rota para cadastrar password com hash
-app.post('/api/cadastro', async (req, res) => {
+app.post('/registerLoginBack', async (req, res) => {
   const { password } = req.body;
 
   // Verifica se o campo de password está vazio
