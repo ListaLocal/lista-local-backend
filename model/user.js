@@ -5,7 +5,7 @@ const UsuarioSchema = new mongoose.Schema({
   fantasyName: String,
   email: { type: String, unique: true },
   password: String,
-  confirmPassword: String,
+  
   
 });
 const Usuario = mongoose.model("Usuario", UsuarioSchema);

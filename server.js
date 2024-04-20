@@ -97,7 +97,7 @@ app.delete("/registerLoginBack/:id", (req, res) => {
     .then(() => res.json({ message: "password deletado com sucesso" }))
     .catch((err) => res.status(400).json({ error: err.message }));
 });
-// final da parte dologin da api
+// final da parte do login da api
 
 
 // Middleware de validação para o registro de usuários
@@ -116,6 +116,25 @@ const Current = require('./model/current');
 
 Current();
 
+//  checar email
+app.get('/check-email/:email', async (req, res) => {
+  const email = req.params.email;
+
+  try {
+    const existingUser = await Usuario.findOne({ email });
+    if (existingUser) {
+      return res.status(200).json({ exists: true });
+    } else {
+      return res.status(200).json({ exists: false });
+    }
+  } catch (error) {
+    console.error('Erro ao verificar o email:', error);
+    res.status(500).json({ message: 'Erro ao verificar o email.' });
+  }
+});
+
+// end check email
+
 // Rotas CRUD
 // Função para criar o hash da senha
 async function hashSenha(senha) {
@@ -131,7 +150,7 @@ app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { username, cnpj, email, fantasyName, password, confirmPassword } =
+  const { username, cnpj, email, fantasyName, password } =
     req.body;
 
   // Verificar se algum dos campos está vazio
@@ -140,8 +159,7 @@ app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
     !cnpj ||
     !email ||
     !fantasyName ||
-    !password ||
-    !confirmPassword
+    !password 
   ) {
     return res
       .status(400)
@@ -167,12 +185,7 @@ app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
       .json({ error: "O fantasyName deve ter pelo menos 5 caracteres." });
   }
 
-  // Verificar se a senha e a confirmação de senha coincidem
-  if (password !== confirmPassword) {
-    return res
-      .status(400)
-      .json({ error: "As senhas password e confirmPassword não coincidem." });
-  }
+  
 
   // Criar hash da senha
   const hashedPassword = await hashSenha(password);
@@ -191,7 +204,7 @@ app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
       fantasyName,
       email,
       password: hashedPassword,
-      confirmPassword,
+      
     });
     await newUser.save();
     res.status(201).json({ message: "Usuário cadastrado com sucesso" });
@@ -222,13 +235,26 @@ app.put("/api/usuarios/:id", (req, res) => {
     .catch((err) => res.status(400).json({ error: err.message }));
 });
 
-// Delete
+// Delete one user
 app.delete("/api/usuarios/:id", (req, res) => {
   Usuario.findByIdAndDelete(req.params.id)
     .then(() => res.json({ message: "usuario deletado com sucesso" }))
     .catch((err) => res.status(400).json({ error: err.message }));
 });
 
+// 
+// Rota para deletar todos os usuários
+app.delete('/delete-all-users', async (req, res) => {
+  try {
+    // Deleta todos os usuários do banco de dados
+    await Usuario.deleteMany({});
+    res.status(200).json({ message: 'Todos os usuários foram deletados com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao deletar todos os usuários:', error);
+    res.status(500).json({ message: 'Erro ao deletar todos os usuários.' });
+  }
+});
+// 
 // ////////////
 // Middleware de validação para o login de usuários
 const validateUserLogin = [
