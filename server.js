@@ -75,7 +75,7 @@ app.post('/loginApi', async (req, res) => {
     const login = await Login.findOne();
     const match = await bcrypt.compare(password, login.password);
     if (match) {
-      res.json({ redirectUrl: '/api/usuarios' }); // Substitua com a rota para onde você deseja redirecionar
+      res.json({ redirectUrl: '/' }); // Substitua com a rota para onde você deseja redirecionar
     } else {
       res.status(401).json({ error: 'Credenciais inválidas' });
     }
@@ -85,11 +85,11 @@ app.post('/loginApi', async (req, res) => {
 });
 
 // Rota para ler os password salvos
-app.get("/registerLoginBack", (req, res) => {
-  Login.find()
-    .then((logins) => res.json(logins))
-    .catch((err) => res.status(400).json({ error: err.message }));
-});
+// app.get("/registerLoginBack", (req, res) => {
+//   Login.find()
+//     .then((logins) => res.json(logins))
+//     .catch((err) => res.status(400).json({ error: err.message }));
+// });
 
 // Rota para Deletar o password
 app.delete("/registerLoginBack/:id", (req, res) => {
@@ -215,11 +215,11 @@ app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
 });
 
 // Read
-app.get("/api/usuarios", (req, res) => {
-  Usuario.find()
-    .then((usuarios) => res.json(usuarios))
-    .catch((err) => res.status(400).json({ error: err.message }));
-});
+// app.get("/api/usuarios", (req, res) => {
+//   Usuario.find()
+//     .then((usuarios) => res.json(usuarios))
+//     .catch((err) => res.status(400).json({ error: err.message }));
+// });
 
 // Read one user
 app.get("/api/usuarios/:id", (req, res) => {
