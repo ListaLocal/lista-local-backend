@@ -111,10 +111,7 @@ const Usuario = require("./model/user");
 
 Usuario();
 
-//  importando o modelo de usuario current
-const Current = require('./model/current');
 
-Current();
 
 //  checar email
 app.get('/check-email/:email', async (req, res) => {
@@ -215,11 +212,11 @@ app.post("/api/usuarios", validateUserRegistration, async (req, res) => {
 });
 
 // Read
-// app.get("/api/usuarios", (req, res) => {
-//   Usuario.find()
-//     .then((usuarios) => res.json(usuarios))
-//     .catch((err) => res.status(400).json({ error: err.message }));
-// });
+app.get("/api/usuarios", (req, res) => {
+  Usuario.find()
+    .then((usuarios) => res.json(usuarios))
+    .catch((err) => res.status(400).json({ error: err.message }));
+});
 
 // Read one user
 app.get("/api/usuarios/:id", (req, res) => {
@@ -288,85 +285,6 @@ app.post("/api/usuarios/login", validateUserLogin, async (req, res) => {
     return res.status(500).send("Erro interno do servidor");
   }
 });
-
-//  page currentUpdateCompany
-
-// Configuração do Multer para salvar as imagens no diretório "uploads"
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({ storage: storage });
-
-
-// Rota para cadastro de usuário
-app.post('/api/usuarios/login/current', upload.single('imagem'), async (req, res) => {
-  try {
-    // Extrair dados do corpo da requisição
-    const { whatsapp, newWhatsapp, instagram, cep, logradouro, numero, bairro, complemento } = req.body;
-
-    // Verificar se algum campo obrigatório está vazio
-    if (!whatsapp || !newWhatsapp || !instagram || !cep || !logradouro || !numero || !bairro|| !complemento) {
-      return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
-    }
-
-    // Verificar se a imagem foi enviada
-    const imagem = req.file ? req.file.path : null;
-
-    const newCurrent = new Current({
-      whatsapp,
-      newWhatsapp,
-      instagram,
-      cep,
-      logradouro,
-      numero,
-      bairro,
-      complemento,
-      imagem
-    });
-
-    await newCurrent.save();
-
-    res.status(201).json({ message: 'Formulario atualizado', user: newCurrent });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
-  }
-});
-
-// Read one user
-app.get("/api/usuarios/login/current/:id", (req, res) => {
-  Current.findOne()
-    .then((usuarios) => res.json(usuarios))
-    .catch((err) => res.status(400).json({ error: err.message }));
-});
-
-// Read
-// app.get("/api/usuarios/login/current", (req, res) => {
-//   Current.find()
-//     .then((currents) => res.json(currents))
-//     .catch((err) => res.status(400).json({ error: err.message }));
-// });
-
-// Update
-app.put("/api/usuarios/login/current/:id", (req, res) => {
-  Current.findByIdAndUpdate(req.params.id, req.body, { new: true })
-    .then((current) => res.json(current))
-    .catch((err) => res.status(400).json({ error: err.message }));
-});
-// Delete
-app.delete("/api/usuarios/login/current/:id", (req, res) => {
-  Current.findByIdAndDelete(req.params.id)
-    .then(() => res.json({ message: "usuario deletado com sucesso" }))
-    .catch((err) => res.status(400).json({ error: err.message }));
-});
-
-
 
 
 app.listen(PORT, () => console.log(`Api rodando na porta ${PORT}`));
