@@ -347,11 +347,11 @@ app.get("/api/usuarios/login/current/:id", (req, res) => {
 });
 
 // Read
-app.get("/api/usuarios/login/current", (req, res) => {
-  Current.find()
-    .then((currents) => res.json(currents))
-    .catch((err) => res.status(400).json({ error: err.message }));
-});
+// app.get("/api/usuarios/login/current", (req, res) => {
+//   Current.find()
+//     .then((currents) => res.json(currents))
+//     .catch((err) => res.status(400).json({ error: err.message }));
+// });
 
 // Update
 app.put("/api/usuarios/login/current/:id", (req, res) => {
