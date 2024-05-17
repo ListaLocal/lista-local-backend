@@ -8,35 +8,36 @@ const multer = require('multer');
 const path = require('path');
 const { check, validationResult } = require("express-validator");
 const jwt = require('jsonwebtoken');
+const authMiddleware = require('./authMiddleware');
+
+const zxcvbn = require('zxcvbn');
 
 const app = express();
 const secretKey = 'estado'
+
 // Middleware para analisar corpos de solicitação
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(express.json());
-
 app.use(cors());
+
 
 const PORT = process.env.PORT || 3000;
 
 // conexão com o banco
-
 const db = require("./DB/db");
-
 db();
 
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-    next();
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
 });
 
 const API_PASSWORD = process.env.API_PASSWORD;
+
 // Rota de autenticação na página inicial
-// Rota para a página inicial
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
@@ -44,7 +45,16 @@ app.get("/", (req, res) => {
 // Rota para autenticar a senha
 app.post("/", (req, res) => {
   const { password } = req.body;
+ // Usando zxcvbn para verificar a força da senha
+  const passwordResult = zxcvbn(password);
 
+  if (passwordResult.score < 2) {
+    // Senha fraca, recuse o acesso
+    res.status(401).send("Senha muito fraca. Por favor, escolha uma senha mais forte.");
+    return;
+  }
+
+  // Se a senha for forte o suficiente, continue
   if (password === process.env.API_PASSWORD) {
     // Senha correta, conceda acesso à API
     res.status(200).send("Acesso concedido à API");
@@ -59,6 +69,22 @@ const validateUserRegistration = [
   check("email").isEmail({}),
   check("password").isLength({ min: 6 }),
 ];
+
+
+// Rota para autenticar a senha
+app.post("/", (req, res) => {
+  const { password } = req.body;
+
+  if (password === process.env.API_PASSWORD) {
+    // Senha correta, conceda acesso à API
+    res.status(200).send("Acesso concedido à API");
+  } else {
+    // Senha incorreta, negue o acesso
+    res.status(401).send("Credenciais inválidas");
+  }
+});
+
+
 
 // Importando o modelo de usuário
 const Usuario = require("./model/user");
@@ -318,7 +344,21 @@ app.delete("/api/usuarios/login/current/:id", (req, res) => {
     .then(() => res.json({ message: "usuario deletado com sucesso" }))
     .catch((err) => res.status(400).json({ error: err.message }));
 });
+// Rota inicial
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html");
+});
 
+// Rota para autenticação na página inicial
+app.post("/", (req, res) => {
+  const { password } = req.body;
+
+  if (password === process.env.API_PASSWORD) {
+    res.status(200).send("Acesso concedido à API");
+  } else {
+    res.status(401).send("Credenciais inválidas");
+  }
+});
 
 
 
