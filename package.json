@@ -4,8 +4,16 @@
   "description": "ListaLocal é uma plataforma que permite aos usuários encontrar empresas de forma fácil e por filtro de cidades. As empresas podem se cadastrar na plataforma, onde informações como nome da empresa, endereço, WhatsApp e Instagram serão exibidas. Além disso, a plataforma apresenta um banner de empresas em destaque.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "nodemon server.js"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov"
+    ]
   },
   "keywords": [],
   "author": "",
@@ -24,5 +32,12 @@
     "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.0",
     "zxcvbn": "^4.4.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.1.4",
+    "typescript": "^5.4.5"
   }
 }
